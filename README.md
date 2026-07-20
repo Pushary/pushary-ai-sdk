@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/@pushary/ai-sdk)](https://www.npmjs.com/package/@pushary/ai-sdk)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Full walkthrough: [Human-in-the-loop for the Vercel AI SDK](https://pushary.com/human-in-the-loop-vercel-ai-sdk). Reaching your own end-users on their phones is the Pushary [Partner plan](https://pushary.com/human-in-the-loop).
+Full walkthrough: [Human-in-the-loop for the Vercel AI SDK](https://pushary.com/human-in-the-loop-vercel-ai-sdk?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme). Reaching your own end-users on their phones is the Pushary [Partner plan](https://pushary.com/human-in-the-loop?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
 
 Human-in-the-loop for the [Vercel AI SDK](https://ai-sdk.dev). Give your agent one tool that pauses until a real human approves on their phone, and answers from the lock screen.
 
@@ -13,7 +13,7 @@ Two calls is the whole integration:
 1. `enroll(externalId)` once per end-user. Show them the link it returns. One tap connects their phone.
 2. Add `createPusharyTools({ externalId })` to your agent. Now it can ask that person and block on the answer.
 
-No UI to build, no polling to write, no webhooks required. Requires the Pushary [Partner plan](https://pushary.com/agent-notifications-integration).
+No UI to build, no polling to write, no webhooks required. Requires the Pushary [Partner plan](https://pushary.com/agent-notifications-integration?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
 
 ## Install
 
@@ -75,6 +75,11 @@ tools: { ...createPusharyTools({ apiKey, externalId }), ...myOtherTools }
 
 ## Under the hood
 
-This package is a thin wrapper over [`@pushary/server`](https://www.npmjs.com/package/@pushary/server) (`enroll` + `decisions.ask`). Use that directly for any framework, or reach for the Pushary MCP server to wire agents up with no code at all. See the [adapters guide](https://pushary.com/docs/agents/adapters).
+This package is a thin wrapper over [`@pushary/server`](https://www.npmjs.com/package/@pushary/server) (`enroll` + `decisions.ask`). Use that directly for any framework, or reach for the Pushary MCP server to wire agents up with no code at all. See the [adapters guide](https://pushary.com/docs/agents/adapters?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
 
 MIT
+
+## Example
+
+A runnable example is in [`examples/`](examples).
+
