@@ -44,9 +44,6 @@ interface AskInput {
   options?: string[]
 }
 
-// Cast to a shallow ZodType so ai's `tool()` generic does not recurse through the
-// full inferred zod shape (TS2589 "excessively deep") on some `ai` minor versions.
-// Runtime validation is unchanged; only the compile-time inference is simplified.
 const askInputSchema = z.object({
   question: z.string().describe('The exact question to put to the human.'),
   type: z
@@ -54,7 +51,7 @@ const askInputSchema = z.object({
     .default('confirm')
     .describe('confirm = yes/no, select = pick one of options, input = free text.'),
   options: z.array(z.string()).optional().describe('The choices, for a select question.'),
-}) as unknown as z.ZodType<AskInput>
+})
 
 /**
  * Vercel AI SDK tools that let your agent pause for a real human on their phone.
@@ -106,7 +103,7 @@ export const createPusharyTools = (config: PusharyToolsConfig): ToolSet => {
     },
   }
 
-  return { askHuman } as unknown as ToolSet
+  return { askHuman } satisfies ToolSet
 }
 
 /**
