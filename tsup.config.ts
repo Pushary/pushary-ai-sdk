@@ -6,5 +6,5 @@ export default defineConfig({
   dts: true,
   clean: true,
   sourcemap: true,
-  external: ['ai', 'zod', '@pushary/server'],
+  external: ['ai', 'zod', '@pushary/server', /^@pushary\/server\//],
 })

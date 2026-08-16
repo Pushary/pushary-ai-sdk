@@ -37,11 +37,10 @@ const { universalLink } = await enroll({ apiKey: process.env.PUSHARY_API_KEY! },
 
 ```ts
 import { generateText, stepCountIs } from 'ai'
-import { openai } from '@ai-sdk/openai'
 import { createPusharyTools } from '@pushary/ai-sdk'
 
 const { text } = await generateText({
-  model: openai('gpt-4o'),
+  model: 'openai/gpt-4o',
   tools: createPusharyTools({
     apiKey: process.env.PUSHARY_API_KEY!,
     externalId: user.id, // the enrolled person who answers
@@ -59,6 +58,49 @@ The agent gets an `askHuman` tool. When it calls it, the person gets a push noti
 - **Serverless-safe.** Each ask blocks up to 55 seconds by default (`timeoutMs`). The decision stays answerable for its full lifetime, so a slow human still resolves it. For waits of minutes or hours, run under a durable workflow (Inngest, Temporal, Vercel Workflow) and use a `callbackUrl`.
 - **No double-asks on retry.** The idempotency key is derived deterministically, so a retried step reuses the same decision instead of paging the human twice.
 
+## Gating a tool the model cannot skip
+
+`createPusharyTools` gives the model a tool it chooses to call. That is right for
+"go ask someone about this", and wrong for "this must not happen without a yes",
+because a model that does not want to be interrupted can decline to call it.
+
+For an enforced gate, use `pusharyApproval()` in the AI SDK's own `toolApproval`.
+The SDK evaluates it before the tool executes, so there is no path around it:
+
+```ts
+import { generateText } from 'ai'
+import { pusharyApproval } from '@pushary/ai-sdk'
+
+const { text } = await generateText({
+  model: 'openai/gpt-4o',
+  tools: { issueRefund, lookupOrder },
+  // only issueRefund asks a human; lookupOrder runs untouched
+  toolApproval: pusharyApproval({ externalId: user.id, tools: ['issueRefund'] }),
+  prompt: 'Refund order 1234.',
+})
+```
+
+Drop `tools` to gate every call. For the per-tool form:
+
+```ts
+toolApproval: {
+  issueRefund: pusharyToolApproval({ toolName: 'issueRefund', externalId: user.id }),
+}
+```
+
+Fail-closed: a denial, an expiry, or nobody answering all come back denied and the
+tool does not run. The decision is keyed on the tool call, so a provider-level retry
+resolves to the same decision instead of asking twice.
+
+For a multi-tenant product, resolve the end-user per call:
+
+```ts
+toolApproval: pusharyApproval({ externalId: (call) => ownerOf(call.input) })
+```
+
+`toolApproval` does not exist in `ai@5`, so the gate needs a newer `ai`. The ask tool
+above works from `ai@5` on.
+
 ## API
 
 ### `createPusharyTools(config)`
@@ -75,7 +117,7 @@ tools: { ...createPusharyTools({ apiKey, externalId }), ...myOtherTools }
 
 ## Under the hood
 
-This package is a thin wrapper over [`@pushary/server`](https://www.npmjs.com/package/@pushary/server) (`enroll` + `decisions.ask`). Use that directly for any framework, or reach for the Pushary MCP server to wire agents up with no code at all. See the [adapters guide](https://pushary.com/docs/agents/adapters?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
+This package is a thin binding over the shared adapter kernel in [`@pushary/server`](https://www.npmjs.com/package/@pushary/server) (`@pushary/server/adapters`), which every Pushary framework adapter is built on. Use `@pushary/server` directly for any framework, `@pushary/server/adapters` to write your own adapter, or the Pushary MCP server to wire agents up with no code at all. See the [adapters guide](https://pushary.com/docs/agents/adapters?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
 
 MIT
 

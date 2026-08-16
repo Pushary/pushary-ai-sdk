@@ -25,6 +25,11 @@ export interface PusharyToolsConfig {
   readonly baseUrl?: string
 }
 
+export * from './approval'
+
+// Kept local rather than taken from `@pushary/server/adapters`: this adapter has
+// shipped the capitalised verdict since 0.1.0, and the string goes to a model, so
+// changing it is a behaviour change rather than a refactor.
 /** Turn a decision outcome into an unambiguous instruction for the model. */
 export const describeAnswer = (type: DecisionType, result: AskResult): string => {
   if (!result.answered) {
