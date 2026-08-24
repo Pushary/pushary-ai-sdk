@@ -89,6 +89,9 @@ const gateFor = (config: PusharyApprovalConfig) => {
       sessionId: config.sessionId ?? '',
       question: buildQuestion(toolCall),
       externalId: kernel.requireExternalId(configured),
+      // Lets a rule decide on the call's arguments and not only its name. The
+      // kernel bounds what it derives, and derives nothing it cannot carry whole.
+      input: toolCall.input,
     })
     return decision.approved ? { type: 'approved' } : { type: 'denied', reason: decision.reason }
   }
