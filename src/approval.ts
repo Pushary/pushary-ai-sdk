@@ -3,8 +3,9 @@
 // not be interrupted cannot route around it.
 //
 // Nothing here imports a type from `ai`. The shapes below are structurally
-// assignable to `ToolApprovalConfiguration`, which keeps the `ai >= 5.0.0` peer
-// floor honest and keeps the dts build off `ai`'s deeply generic tool types.
+// assignable to AI SDK 7's `ToolApprovalConfiguration`, keeping the dts build off
+// `ai`'s deeply generic tool types. The ai >= 5 peer floor supports the basic ask
+// tool; these gates need a version exposing `toolApproval` (use ai@7).
 
 import { createAdapterKernel, renderApprovalQuestion } from '@pushary/server/adapters'
 

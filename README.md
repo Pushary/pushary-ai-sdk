@@ -98,8 +98,9 @@ For a multi-tenant product, resolve the end-user per call:
 toolApproval: pusharyApproval({ externalId: (call) => ownerOf(call.input) })
 ```
 
-`toolApproval` does not exist in `ai@5`, so the gate needs a newer `ai`. The ask tool
-above works from `ai@5` on.
+Use `ai@7` for the `toolApproval` gate examples above. This API is absent from
+`ai@5.0.0` and `ai@6.0.0`; the package's `ai >= 5.0.0` peer range also serves the
+basic ask tool, which works from `ai@5` on.
 
 ## API
 
@@ -124,4 +125,3 @@ MIT
 ## Example
 
 A runnable example is in [`examples/`](examples).
-
