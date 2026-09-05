@@ -1,5 +1,36 @@
 # @pushary/ai-sdk
 
+## Try it before signing up
+
+[Open the no-signup browser demo](https://pushary.com/try?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=demo).
+It demonstrates a human approval with an open phone page and temporary state;
+it does **not** demonstrate push delivery or durable production storage.
+
+For a local example using the real AI SDK approval callback:
+
+```bash
+git clone https://github.com/Pushary/pushary-ai-sdk.git
+cd pushary-ai-sdk
+npm install
+npm run build
+node examples/refund.mjs
+```
+
+Use Node.js 22 and AI SDK 7 (installed by this repo). No account, card, API key, or model provider is needed for this simulation.
+It checks all three outcomes:
+
+```text
+yes: executed (simulated refund)
+no: blocked (simulated refund)
+unanswered: blocked (simulated refund)
+```
+
+[Read the example and try a real phone approval](examples/README.md).
+The integration code is MIT-licensed; real phone delivery uses the hosted Pushary service and requires Partner access.
+
+Found it useful? [Star this repository](https://github.com/Pushary/pushary-ai-sdk) or
+[help improve an example](CONTRIBUTING.md).
+
 [![CI](https://github.com/Pushary/pushary-ai-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Pushary/pushary-ai-sdk/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@pushary/ai-sdk)](https://www.npmjs.com/package/@pushary/ai-sdk)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
