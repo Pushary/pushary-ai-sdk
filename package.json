@@ -1,6 +1,6 @@
 {
   "name": "@pushary/ai-sdk",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Vercel AI SDK tools for Pushary: pause your agent until a real human approves on their phone (human-in-the-loop).",
   "author": "Pushary <business@pushary.com>",
   "homepage": "https://pushary.com/human-in-the-loop-vercel-ai-sdk",
@@ -25,6 +25,7 @@
   },
   "files": [
     "dist",
+    "examples",
     "README.md",
     "LICENSE"
   ],
@@ -37,11 +38,12 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:restart": "node examples/delayed-review.mjs",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "dependencies": {
-    "@pushary/server": "^2.0.0"
+    "@pushary/server": "^2.1.0"
   },
   "peerDependencies": {
     "ai": ">=5.0.0",

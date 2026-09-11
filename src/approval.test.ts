@@ -77,6 +77,25 @@ const toolCall = {
 }
 
 describe('pusharyApproval', () => {
+  it('requires a person when policy is disabled and carries the trusted review subject', async () => {
+    const calls = installFetch([answered('yes')], ALLOWED)
+    await pusharyApproval({
+      ...CONFIG,
+      policy: false,
+      subject: () => ({ toolTarget: 'order_1', presentation: { label: 'Refund order', effect: 'Return payment' } }),
+    })({ toolCall })
+    expect(calls).toHaveLength(1)
+    expect(calls[0].body).toMatchObject({ toolTarget: 'order_1', parameters: { amount: 480 }, presentation: { label: 'Refund order' } })
+  })
+
+  it('requires a new review when a retried tool call changes its arguments', async () => {
+    const calls = installFetch([answered('yes')])
+    const gate = pusharyApproval({ ...CONFIG, policy: false })
+    await gate({ toolCall })
+    await gate({ toolCall: { ...toolCall, input: { amount: 960 } } })
+    expect(calls[0].body?.idempotencyKey).not.toBe(calls[1].body?.idempotencyKey)
+  })
+
   it('approves when the human says yes', async () => {
     installFetch([answered('yes')])
     expect(await pusharyApproval(CONFIG)({ toolCall })).toEqual({ type: 'approved' })

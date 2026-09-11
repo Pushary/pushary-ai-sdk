@@ -1,13 +1,14 @@
 import type { ToolSet } from 'ai'
 import { z } from 'zod'
 import {
-  createPusharyServer,
-  deterministicKey,
   type AskResult,
   type DecisionType,
   type EnrollResult,
-  type PusharyServer,
 } from '@pushary/server'
+
+import { createAdapterKernel, decisionFingerprint } from '@pushary/server/adapters'
+
+const kernel = createAdapterKernel('createPusharyTools()')
 
 export interface PusharyToolsConfig {
   /** Your Pushary API key (pk_xxx.sk_xxx). */
@@ -73,10 +74,8 @@ const askInputSchema = z.object({
  * ```
  */
 export const createPusharyTools = (config: PusharyToolsConfig): ToolSet => {
-  const client: PusharyServer = createPusharyServer({
-    apiKey: config.apiKey,
-    baseUrl: config.baseUrl,
-  })
+  const externalId = kernel.requireExternalId(config.externalId)
+  const client = kernel.client(config)
 
   // Built as a plain structural object, not via ai's `tool()` helper and not
   // annotated with `Tool<>`. `tool()` is a pure identity function (it returns its
@@ -86,7 +85,7 @@ export const createPusharyTools = (config: PusharyToolsConfig): ToolSet => {
   // `ToolSet` so consumers spread it into `generateText`/`streamText` `tools`.
   const askHuman = {
     description:
-      'Ask a real human to approve, choose, or answer. Delivered to their phone and answered from the lock screen. Blocks until they reply. Use this before any risky or irreversible action (spending money, deleting data, sending an external message) or whenever you genuinely need a human decision.',
+      'Ask a real human to approve, choose, or answer. Delivered to their native phone app. Confirmations can be answered from the notification; choices and text open the app. Blocks until they reply. Use this before any risky or irreversible action (spending money, deleting data, sending an external message) or whenever you genuinely need a human decision.',
     inputSchema: askInputSchema,
     execute: async (
       { question, type, options }: AskInput,
@@ -96,13 +95,13 @@ export const createPusharyTools = (config: PusharyToolsConfig): ToolSet => {
         question,
         type,
         options,
-        externalId: config.externalId,
+        externalId,
         agentName: config.agentName,
         timeoutMs: config.timeoutMs,
         // Keyed to this specific tool call: a provider-level retry of the same call
         // dedupes, while two distinct askHuman calls (even with identical text) stay
         // separate decisions that each reach the human.
-        idempotencyKey: deterministicKey([config.externalId, toolCallId]),
+        idempotencyKey: decisionFingerprint({ externalId, toolCallId, question, type, options }),
       })
       return describeAnswer(type, result)
     },
@@ -120,4 +119,4 @@ export const enroll = (
   config: { readonly apiKey: string; readonly baseUrl?: string },
   externalId: string,
 ): Promise<EnrollResult> =>
-  createPusharyServer({ apiKey: config.apiKey, baseUrl: config.baseUrl }).enroll(externalId)
+  kernel.connect(config, externalId)

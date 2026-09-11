@@ -1,5 +1,14 @@
 # @pushary/ai-sdk
 
+Your agent asks; your customer answers in the native Pushary app. Use `createPusharyTools` for confirm, select, and input questions. Use the separately enforced `pusharyApproval` gate for permission to execute a tool. Choices and typed answers open the app; yes/no confirmations can use notification actions. Legacy web links remain available.
+
+Set `policy: false` when a person must always decide. A trusted `subject` resolver can provide the action target, parameters, and presentation. Recipient identity comes from your authenticated application, never from model-supplied arguments. Tool retries keep their review only while the recipient and complete proposed action remain identical.
+
+Run `npm run build` then `node examples/refund.mjs` for a real AI SDK 7 execution with simulated approval responses; `--live` enrolls your test phone while the refund remains simulated. This request-time gate is bounded by its timeout. For answers arriving later, persist the AI SDK's pending approval and messages in your application and resume them only after verifying the matching decision. This package does not add a durable runner.
+
+Release candidate `0.3.0` requires server SDK 2.1. The basic ask tool retains `ai >=5` and Node.js 18 as its minimum metadata; follow the runtime requirements of your installed AI SDK version. The enforced `toolApproval` API requires AI SDK 7 and Node.js 22 or later. The delayed SQLite recipe needs Node.js 22.13 or later (tested on 24.3 with `ai@7.0.66`); the broader peer range is not a claim that every version was tested. Do not assume nested subagent tools support the same approval API. Upgrade alongside server SDK 2.1 and finish old pending operations on their original version, because approval keys now bind the full action.
+
+
 ## Try it before signing up
 
 [Open the no-signup browser demo](https://pushary.com/try?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=demo).
@@ -86,7 +95,7 @@ The agent gets an `askHuman` tool. When it calls it, the person gets a push noti
 ## Behavior that matters
 
 - **Fail-closed.** A declined, expired, or unanswered `confirm` is reported to the model as "not approved, do not proceed." Approval only happens on an explicit yes.
-- **Serverless-safe.** Each ask blocks up to 55 seconds by default (`timeoutMs`). The decision stays answerable for its full lifetime, so a slow human still resolves it. For waits of minutes or hours, run under a durable workflow (Inngest, Temporal, Vercel Workflow) and use a `callbackUrl`.
+- **Bounded wait.** Each ask blocks up to 55 seconds by default (`timeoutMs`). A later answer does not restart that completed request. For delayed answers, use the saved-message recipe below or your existing durable workflow.
 - **No double-asks on retry.** The idempotency key is derived deterministically, so a retried step reuses the same decision instead of paging the human twice.
 
 ## Gating a tool the model cannot skip
@@ -132,6 +141,12 @@ toolApproval: pusharyApproval({ externalId: (call) => ownerOf(call.input) })
 Use `ai@7` for the `toolApproval` gate examples above. This API is absent from
 `ai@5.0.0` and `ai@6.0.0`; the package's `ai >= 5.0.0` peer range also serves the
 basic ask tool, which works from `ai@5` on.
+
+## Delayed customer answers
+
+The [SQLite reference recipe](examples/DELAYED-REVIEWS.md) saves AI SDK's native approval messages before asking the customer, reads the authoritative answer later, and resumes only the saved call. It includes atomic worker claims, exact customer/action binding, durable outputs and uncertain-execution recovery. No hosted scheduler is required.
+
+Run `npm run test:restart` with Node.js 22.13 or later (tested on 24.3) to check fresh-process recovery, duplicate workers and crash handling using a simulated API. Examples are included in the npm package. The delayed recipe requires AI SDK 7; confirm/select/input in the existing ask tool remain request-time interactions.
 
 ## API
 

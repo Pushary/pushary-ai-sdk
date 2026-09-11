@@ -66,7 +66,16 @@ try {
           execute: async ({ amount }) => { executions++; return { simulated: true, amount } },
         }),
       },
-      toolApproval: pusharyApproval({ ...config, externalId, tools: ['issueRefund'] }),
+      toolApproval: pusharyApproval({
+        ...config,
+        externalId,
+        policy: false,
+        tools: ['issueRefund'],
+        subject: () => ({
+          toolTarget: 'DEMO-123',
+          presentation: { label: 'Refund order DEMO-123', effect: 'Simulate returning the payment' },
+        }),
+      }),
       maxRetries: 0,
     })
 
@@ -78,4 +87,3 @@ try {
   }
 } finally { globalThis.fetch = realFetch }
 console.log('Found this useful? Star this repo, or share a reproducible issue and help improve it.')
-

@@ -27,13 +27,12 @@ in your shell environment; do not commit it or paste it into an issue.
 
 Live mode makes real API calls and can consume your plan's usage. The refund and model
 remain simulated. The human-answer wait is bounded to 55 seconds and no answer blocks execution. Enrollment and policy requests have separate timeouts.
-An account policy may allow or deny the AI SDK action without asking a person.
-Use a test policy that requires human approval when checking phone delivery.
+The example sets `policy: false`, so a real person must answer in live mode.
 A successful local run does not prove device reachability, authentication, or push delivery.
 
 For a production integration, keep the enrolled identity bound in trusted server
 code, persist an operation id across retries, and make the actual refund idempotent.
-For long waits, use the durable workflow path in the main README.
+For long waits, use the [saved-message and SQLite recipe](DELAYED-REVIEWS.md), tested across fresh processes with `npm run test:restart` on Node.js 24.
 
 ## A useful bug report
 

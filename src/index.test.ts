@@ -59,6 +59,10 @@ describe('describeAnswer', () => {
 })
 
 describe('createPusharyTools', () => {
+  it('refuses an oversized recipient before exposing a tool that could route to a truncated ID', () => {
+    expect(() => createPusharyTools({ apiKey: 'pk_x.sk_y', externalId: 'x'.repeat(257) })).toThrow(/256/)
+  })
+
   it('askHuman delivers to the configured externalId and reports approval', async () => {
     const calls = installFetch([
       () => ({ json: { decisionId: 'd', status: 'pending', answered: false, type: 'confirm' } }),

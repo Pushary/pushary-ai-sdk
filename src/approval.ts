@@ -7,7 +7,8 @@
 // `ai`'s deeply generic tool types. The ai >= 5 peer floor supports the basic ask
 // tool; these gates need a version exposing `toolApproval` (use ai@7).
 
-import { createAdapterKernel, renderApprovalQuestion } from '@pushary/server/adapters'
+import { createAdapterKernel, renderApprovalQuestion, type PusharyGateConfig } from '@pushary/server/adapters'
+import type { DecisionSubject } from '@pushary/server'
 
 /**
  * A tool approval outcome, structurally assignable to the AI SDK's
@@ -28,9 +29,7 @@ export interface GatedToolCall {
 /** Resolves a value from one gated tool call. */
 export type ToolCallResolver<TValue> = (toolCall: GatedToolCall) => TValue
 
-export interface PusharyApprovalConfig {
-  /** Pushary API key. Defaults to `process.env.PUSHARY_API_KEY`. */
-  readonly apiKey?: string
+export interface PusharyApprovalConfig extends PusharyGateConfig {
   /**
    * The enrolled end-user who decides. A string binds every call to one person; a
    * resolver picks one per call.
@@ -41,17 +40,6 @@ export interface PusharyApprovalConfig {
    * gate can sit on the whole run and still ask about the risky few.
    */
   readonly tools?: readonly string[]
-  /** Shown on the approval so the human knows which agent is asking. */
-  readonly agentName?: string
-  /** How long the decision stays answerable. */
-  readonly expiresInSeconds?: number
-  /** How long to block waiting for an answer before failing closed. */
-  readonly timeoutMs?: number
-  /**
-   * Refuse to open a decision nobody can receive, so an end-user with no connected
-   * device is denied at request time instead of silently expiring.
-   */
-  readonly requireReachable?: boolean
   /** Builds the question the human sees. Defaults to the tool name plus its input. */
   readonly question?: ToolCallResolver<string>
   /**
@@ -59,8 +47,7 @@ export interface PusharyApprovalConfig {
    * call, so this only matters if you replay a run under ids you minted yourself.
    */
   readonly sessionId?: string
-  /** Override the API base URL (tests / self-host). */
-  readonly baseUrl?: string
+  readonly subject?: ToolCallResolver<Omit<DecisionSubject, 'toolName' | 'approvalUrl'>>
 }
 
 /** A run-wide gate, assignable to `generateText`/`streamText` `toolApproval`. */
@@ -85,6 +72,7 @@ const gateFor = (config: PusharyApprovalConfig) => {
     const configured =
       typeof config.externalId === 'function' ? config.externalId(toolCall) : config.externalId
     const decision = await gate({
+      ...config.subject?.(toolCall),
       toolName: toolCall.toolName,
       callId: toolCall.toolCallId,
       sessionId: config.sessionId ?? '',
