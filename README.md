@@ -2,12 +2,7 @@
 
 Your agent asks; your customer answers in the native Pushary app. Use `createPusharyTools` for confirm, select, and input questions. Use the separately enforced `pusharyApproval` gate for permission to execute a tool. Choices and typed answers open the app; yes/no confirmations can use notification actions. Legacy web links remain available.
 
-Set `policy: false` when a person must always decide. A trusted `subject` resolver can provide the action target, parameters, and presentation. Recipient identity comes from your authenticated application, never from model-supplied arguments. Tool retries keep their review only while the recipient and complete proposed action remain identical.
-
-Run `npm run build` then `node examples/refund.mjs` for a real AI SDK 7 execution with simulated approval responses; `--live` enrolls your test phone while the refund remains simulated. This request-time gate is bounded by its timeout. For answers arriving later, persist the AI SDK's pending approval and messages in your application and resume them only after verifying the matching decision. This package does not add a durable runner.
-
-Release candidate `0.3.0` requires server SDK 2.1. The basic ask tool retains `ai >=5` and Node.js 18 as its minimum metadata; follow the runtime requirements of your installed AI SDK version. The enforced `toolApproval` API requires AI SDK 7 and Node.js 22 or later. The delayed SQLite recipe needs Node.js 22.13 or later (tested on 24.3 with `ai@7.0.66`); the broader peer range is not a claim that every version was tested. Do not assume nested subagent tools support the same approval API. Upgrade alongside server SDK 2.1 and finish old pending operations on their original version, because approval keys now bind the full action.
-
+[Integration guide](https://pushary.com/human-in-the-loop-vercel-ai-sdk?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=guide) · [Connect your customer’s phone](https://pushary.com/sign-up?from=agent&plan=partner&utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=partner-start) · [Report a problem](https://github.com/Pushary/pushary-ai-sdk/issues)
 
 ## Try it before signing up
 
@@ -37,23 +32,19 @@ unanswered: blocked (simulated refund)
 [Read the example and try a real phone approval](examples/README.md).
 The integration code is MIT-licensed; real phone delivery uses the hosted Pushary service and requires Partner access.
 
-Found it useful? [Star this repository](https://github.com/Pushary/pushary-ai-sdk) or
-[help improve an example](CONTRIBUTING.md).
+[Get help or contribute an example](CONTRIBUTING.md).
 
 [![CI](https://github.com/Pushary/pushary-ai-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Pushary/pushary-ai-sdk/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@pushary/ai-sdk)](https://www.npmjs.com/package/@pushary/ai-sdk)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Full walkthrough: [Human-in-the-loop for the Vercel AI SDK](https://pushary.com/human-in-the-loop-vercel-ai-sdk?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme). Reaching your own end-users on their phones is the Pushary [Partner plan](https://pushary.com/human-in-the-loop?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
+## Runtime and approval boundaries
 
-Human-in-the-loop for the [Vercel AI SDK](https://ai-sdk.dev). Give your agent one tool that pauses until a real human approves on their phone, and answers from the lock screen.
+Set `policy: false` when a person must always decide. A trusted `subject` resolver can provide the action target, parameters, and presentation. Recipient identity comes from your authenticated application, never from model-supplied arguments. Tool retries keep their review only while the recipient and complete proposed action remain identical.
 
-Two calls is the whole integration:
+Run `npm run build` then `node examples/refund.mjs` for a real AI SDK 7 execution with simulated approval responses; `--live` enrolls your test phone while the refund remains simulated. This request-time gate is bounded by its timeout. For answers arriving later, persist the AI SDK's pending approval and messages in your application and resume them only after verifying the matching decision. This package does not add a durable runner.
 
-1. `enroll(externalId)` once per end-user. Show them the link it returns. One tap connects their phone.
-2. Add `createPusharyTools({ externalId })` to your agent. Now it can ask that person and block on the answer.
-
-No UI to build, no polling to write, no webhooks required. Requires the Pushary [Partner plan](https://pushary.com/agent-notifications-integration?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
+Version `0.3.0` requires server SDK 2.1. The basic ask tool retains `ai >=5` and Node.js 18 as its minimum metadata; follow the runtime requirements of your installed AI SDK version. The enforced `toolApproval` API requires AI SDK 7 and Node.js 22 or later. The delayed SQLite recipe needs Node.js 22.13 or later (tested on 24.3 with `ai@7.0.66`); the broader peer range is not a claim that every version was tested. Do not assume nested subagent tools support the same approval API. Upgrade alongside server SDK 2.1 and finish old pending operations on their original version, because approval keys now bind the full action.
 
 ## Install
 
@@ -61,7 +52,7 @@ No UI to build, no polling to write, no webhooks required. Requires the Pushary 
 npm i @pushary/ai-sdk ai zod
 ```
 
-Set `PUSHARY_API_KEY` (get it in your [dashboard](https://pushary.com/dashboard/settings)).
+Set `PUSHARY_API_KEY` (get it in your [dashboard](https://pushary.com/onboarding/partner)).
 
 ## Connect an end-user's phone (once)
 
@@ -86,7 +77,7 @@ const { text } = await generateText({
     externalId: user.id, // the enrolled person who answers
   }),
   stopWhen: stepCountIs(10),
-  prompt: 'Issue the refund only if a human approves it.',
+  prompt: 'Ask the customer which order they need help with.',
 })
 ```
 
