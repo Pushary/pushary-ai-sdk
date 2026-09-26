@@ -1,7 +1,7 @@
 {
   "name": "@pushary/ai-sdk",
   "version": "0.3.0",
-  "description": "Vercel AI SDK tools for Pushary: pause your agent until a real human approves on their phone (human-in-the-loop).",
+  "description": "Phone approvals for Vercel AI SDK agents. Your agent asks, your user taps Approve or Deny.",
   "author": "Pushary <business@pushary.com>",
   "homepage": "https://pushary.com/human-in-the-loop-vercel-ai-sdk",
   "repository": {
@@ -70,6 +70,7 @@
     "agent",
     "approval",
     "tool",
-    "llm"
+    "llm",
+    "tool-approval"
   ]
 }
