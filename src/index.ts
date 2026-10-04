@@ -11,7 +11,7 @@ import { createAdapterKernel, decisionFingerprint } from '@pushary/server/adapte
 const kernel = createAdapterKernel('createPusharyTools()')
 
 export interface PusharyToolsConfig {
-  /** Your Pushary API key (pk_xxx.sk_xxx). */
+  /** Your Pushary API key (pk_xxx.xxx). */
   readonly apiKey: string
   /**
    * The enrolled end-user who should answer. Connect them once with `enroll()`.
