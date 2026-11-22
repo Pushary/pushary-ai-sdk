@@ -14,6 +14,14 @@ Phone approvals for Vercel AI SDK agents. Your agent asks, your user taps Approv
 - An API key from [Partner onboarding](https://pushary.com/onboarding/partner?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=partner-start), set as `PUSHARY_API_KEY`.
 - Your users install the free Pushary app ([iPhone](https://apps.apple.com/us/app/pushary/id6785677563), [Android](https://play.google.com/store/apps/details?id=com.pushary.app)). They never sign up or pay.
 
+## What your customer gets
+
+1. They open your connect link once. It shows your product's name and logo and connects their phone.
+2. When your agent wants a gated tool, a push notification titled with your product name arrives, such as **Acme needs your approval**.
+3. They approve, decline, pick an option or type an answer. Your code gets the answer. A decline, an expired question or no answer at all keeps the tool from running.
+
+Pushary hosts the phone delivery, the decision record and the [audit log](https://pushary.com/docs/agents/audit-log?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme). Your app keeps its own sign-in, the AI SDK messages and the tool's execution.
+
 ## Quick start
 
 ```bash
@@ -37,7 +45,7 @@ const { text } = await generateText({
 
 The agent gets an `askHuman` tool. When it calls it, the person gets a push notification and approves, declines, picks an option, or types an answer from their phone. The tool waits until they reply, then hands the model a clear result. Cache the fact that a user enrolled, not the link itself: it is single-use.
 
-Use `createPusharyTools` when your agent should ask a question. Use `pusharyApproval` (below) when a tool must not run without a yes. Yes or no questions can be answered from the lock screen. Choices and typed answers open the app. Legacy web links remain available.
+Use `createPusharyTools` when your agent should ask a question. Use `pusharyApproval` (below) when a tool must not run without a yes. On iPhone, yes or no questions can be answered from the lock screen. Choices and typed answers open the app. Legacy web links remain available.
 
 The AI SDK's own approval docs: [Tools and tool calling](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling).
 
@@ -165,3 +173,11 @@ MIT
 ## Example
 
 A runnable example is in [`examples/`](examples).
+
+## Links
+
+- [Human in the loop for the Vercel AI SDK](https://pushary.com/human-in-the-loop-vercel-ai-sdk?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme): what your customer sees, with the full example.
+- [Vercel AI SDK guide](https://pushary.com/docs/agents/build/vercel-ai-sdk?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme) in the Pushary docs.
+- [Partner plan](https://pushary.com/partners?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme), from $99 a month. All plans are on the [pricing page](https://pushary.com/pricing?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme).
+- [Browser demo](https://pushary.com/try?utm_source=github&utm_medium=oss-adapter&utm_campaign=pushary-ai-sdk&utm_content=readme) of one approval.
+- Other adapters: [Mastra](https://github.com/Pushary/pushary-mastra), [LangGraph](https://github.com/Pushary/pushary-langgraph), [OpenAI Agents SDK](https://github.com/Pushary/pushary-openai-agents).
