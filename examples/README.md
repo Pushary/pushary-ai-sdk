@@ -14,6 +14,8 @@ The refund only increments a local counter. No payment service is connected.
 Assertions verify that yes executes once, while no and unanswered execute zero times.
 The enforced callback uses AI SDK 7; older AI SDK releases do not expose this API.
 
+To see approval attached to just the refund tool, run `node examples/refund.mjs --per-tool`. The example registers `pusharyToolApproval` under `issueRefund` in AI SDK 7’s tool approval map and checks the same three outcomes.
+
 ## Try real phone delivery
 
 You need a Pushary API key with Partner access and your own test user. Keep the key

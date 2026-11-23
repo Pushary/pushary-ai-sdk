@@ -2,13 +2,14 @@
 import { generateText, tool } from 'ai'
 import { MockLanguageModelV4 } from 'ai/test'
 import { z } from 'zod'
-import { pusharyApproval, enroll } from '../dist/index.js'
+import { pusharyApproval, pusharyToolApproval, enroll } from '../dist/index.js'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { createInterface } from 'node:readline/promises'
 
 const live = process.argv.includes('--live')
-if (process.argv.slice(2).some(arg => arg !== '--live')) throw new Error('Usage: node examples/refund.mjs [--live]')
+const perTool = process.argv.includes('--per-tool')
+if (process.argv.slice(2).some(arg => !['--live', '--per-tool'].includes(arg))) throw new Error('Usage: node examples/refund.mjs [--live] [--per-tool]')
 const config = live
   ? { apiKey: process.env.PUSHARY_API_KEY, timeoutMs: 55000 }
   : { apiKey: 'pk_demo.sk_demo', baseUrl: 'https://simulation.invalid', timeoutMs: 0 }
@@ -56,6 +57,15 @@ try {
         usage: { inputTokens: { total: 0 }, outputTokens: { total: 0 } }, warnings: [],
       },
     })
+    const approval = {
+      ...config,
+      externalId,
+      policy: false,
+      subject: () => ({
+        toolTarget: 'DEMO-123',
+        presentation: { label: 'Refund order DEMO-123', effect: 'Simulate returning the payment' },
+      }),
+    }
     await generateText({
       model,
       prompt: 'Refund order DEMO-123.',
@@ -66,16 +76,9 @@ try {
           execute: async ({ amount }) => { executions++; return { simulated: true, amount } },
         }),
       },
-      toolApproval: pusharyApproval({
-        ...config,
-        externalId,
-        policy: false,
-        tools: ['issueRefund'],
-        subject: () => ({
-          toolTarget: 'DEMO-123',
-          presentation: { label: 'Refund order DEMO-123', effect: 'Simulate returning the payment' },
-        }),
-      }),
+      toolApproval: perTool
+        ? { issueRefund: pusharyToolApproval({ ...approval, toolName: 'issueRefund' }) }
+        : pusharyApproval({ ...approval, tools: ['issueRefund'] }),
       maxRetries: 0,
     })
 
